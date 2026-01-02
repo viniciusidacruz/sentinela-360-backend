@@ -15,15 +15,23 @@ O produto inicia como um MVP com foco em baixo custo, mas preparado para escalar
 
 ### Pré-requisitos
 
-- Node.js 18+ 
-- Yarn ou npm
+- Node.js 25.2.1+ (versão específica definida em `.nvmrc`)
+- Yarn 1.22.22+ (obrigatório - o projeto valida o uso do Yarn)
 - PostgreSQL 14+
 
 ### Instalação
 
+1. Habilite o Corepack (necessário para usar Yarn):
+```bash
+corepack enable
+```
+
+2. Instale as dependências:
 ```bash
 yarn install
 ```
+
+O projeto possui um script `preinstall` que valida o uso do Yarn. Tentativas de instalação com npm serão bloqueadas.
 
 ### Variáveis de Ambiente
 
