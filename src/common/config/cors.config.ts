@@ -1,10 +1,11 @@
 import { INestApplication } from '@nestjs/common';
+
+import { env } from '@/common/config/env.config';
 import { APP_CONSTANTS } from '@/common/constants/app.constants';
-import { AppConfig } from '@/common/config/app.config';
 
 export class CorsConfig {
   static setup(app: INestApplication): void {
-    const allowedOrigins = AppConfig.getCorsOrigins();
+    const allowedOrigins = env.CORS_ORIGINS;
 
     app.enableCors({
       origin: (

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -15,22 +16,14 @@ const envSchema = z.object({
   WEBHOOK_SECRET: z.string().min(1).optional(),
 });
 
+const _env = envSchema.safeParse(process.env);
+
+if (_env.success === false) {
+  throw new Error(
+    `Invalid environment variables: ${JSON.stringify(_env.error.format(), null, 2)}`,
+  );
+}
+
 export type EnvConfig = z.infer<typeof envSchema>;
 
-let envConfig: EnvConfig;
-
-export function validateEnv(): EnvConfig {
-  if (envConfig) {
-    return envConfig;
-  }
-
-  const parsed = envSchema.safeParse(process.env);
-
-  if (!parsed.success) {
-    const errorMessage = `Invalid environment variables: ${JSON.stringify(parsed.error.format(), null, 2)}`;
-    throw new Error(errorMessage);
-  }
-
-  envConfig = parsed.data;
-  return envConfig;
-}
+export const env: EnvConfig = _env.data;

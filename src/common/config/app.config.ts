@@ -1,21 +1,12 @@
-import { validateEnv } from '@/common/config/env.config';
-
-let env: ReturnType<typeof validateEnv>;
-
-function getEnv() {
-  if (!env) {
-    env = validateEnv();
-  }
-  return env;
-}
+import { env } from './env.config';
 
 export class AppConfig {
   static getPort(): number {
-    return getEnv().PORT;
+    return env.PORT;
   }
 
   static getNodeEnv(): string {
-    return getEnv().NODE_ENV;
+    return env.NODE_ENV;
   }
 
   static isDevelopment(): boolean {
@@ -31,22 +22,22 @@ export class AppConfig {
   }
 
   static getCorsOrigins(): string[] {
-    return getEnv().CORS_ORIGINS;
+    return env.CORS_ORIGINS;
   }
 
   static getDatabaseUrl(): string | undefined {
-    return getEnv().DATABASE_URL;
+    return env.DATABASE_URL;
   }
 
   static getJwtSecret(): string | undefined {
-    return getEnv().JWT_SECRET;
+    return env.JWT_SECRET;
   }
 
   static getJwtExpiresIn(): string {
-    return getEnv().JWT_EXPIRES_IN;
+    return env.JWT_EXPIRES_IN;
   }
 
   static getWebhookSecret(): string | undefined {
-    return getEnv().WEBHOOK_SECRET;
+    return env.WEBHOOK_SECRET;
   }
 }
