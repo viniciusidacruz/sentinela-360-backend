@@ -1,4 +1,4 @@
-import { validateEnv } from './env.config';
+import { validateEnv } from '@/common/config/env.config';
 
 let env: ReturnType<typeof validateEnv>;
 

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import { INestApplication, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppConfig } from './app.config';
-import { SWAGGER_CONSTANTS } from '../constants/swagger.constants';
+import { AppConfig } from '@/common/config/app.config';
+import { SWAGGER_CONSTANTS } from '@/common/constants/swagger.constants';
 
 export class SwaggerConfig {
   static setup(app: INestApplication): void {

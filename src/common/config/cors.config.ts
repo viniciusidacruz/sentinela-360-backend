@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
-import { APP_CONSTANTS } from '../constants/app.constants';
-import { AppConfig } from './app.config';
+import { APP_CONSTANTS } from '@/common/constants/app.constants';
+import { AppConfig } from '@/common/config/app.config';
 
 export class CorsConfig {
   static setup(app: INestApplication): void {

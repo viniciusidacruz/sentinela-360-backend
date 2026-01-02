@@ -150,6 +150,47 @@ Componentes:
 - Message brokers (quando aplicável)
 - Cache implementations (quando aplicável)
 
+#### Persistência com Prisma
+
+O projeto utiliza **Prisma** como ORM (Object-Relational Mapping) para gerenciamento do banco de dados PostgreSQL.
+
+**Prisma Client:**
+
+- Prisma Client é gerado automaticamente a partir do schema (`prisma/schema.prisma`)
+- O código gerado é armazenado no diretório `generated/prisma/` na raiz do projeto
+- Configuração do output customizado: `output = "../generated/prisma"` no `schema.prisma`
+- Formato de módulo: CommonJS (`moduleFormat = "cjs"`) para compatibilidade com NestJS
+
+**Arquivos Gerados:**
+
+O diretório `generated/prisma/` contém:
+- `index.js`: Ponto de entrada principal do Prisma Client (CommonJS)
+- `client.ts` / `client.js`: Cliente Prisma com tipos TypeScript
+- `enums.ts`: Enumerações do schema (UserRole, etc.)
+- `models/`: Tipos TypeScript para cada modelo do schema
+- `runtime/`: Código de runtime do Prisma
+- `package.json`: Metadados do pacote gerado
+
+**Importações:**
+
+- Imports do Prisma Client devem usar: `import { PrismaClient, UserRole } from 'generated/prisma'`
+- O TypeScript resolve o caminho através da configuração `paths` no `tsconfig.json`
+- Não editar manualmente arquivos em `generated/prisma/` (são sobrescritos ao regenerar)
+
+**Regeneração do Client:**
+
+Após alterações no `schema.prisma`, é necessário regenerar o Prisma Client:
+
+```bash
+yarn prisma generate
+```
+
+**Repositórios:**
+
+- Implementações de repositórios na Infrastructure Layer utilizam o PrismaClient
+- Mapeamento entre entidades de domínio e modelos do Prisma ocorre nos repositórios
+- Repositórios implementam interfaces definidas na Domain Layer
+
 ### Estrutura de Módulo
 
 Cada módulo de negócio segue a organização por camadas:
@@ -852,6 +893,74 @@ Monitoramento contínuo de:
 - Validação de tipos em runtime quando necessário
 - Uso de enums para constantes relacionadas
 - Evitar type assertions desnecessárias
+
+### Formatação e Linting
+
+O projeto utiliza **Prettier** e **ESLint** para garantir consistência e qualidade do código.
+
+**Prettier:**
+
+Configuração (`.prettierrc`):
+- `singleQuote: true`: Uso de aspas simples
+- `trailingComma: "all"`: Vírgula final em objetos e arrays
+- `endOfLine: "auto"`: Detecção automática de fim de linha
+
+**Comandos:**
+
+```bash
+# Formatar código
+yarn format
+
+# Verificar formatação (sem modificar)
+yarn prettier --check "src/**/*.ts"
+```
+
+**ESLint:**
+
+Configuração (`eslint.config.mjs`):
+- Base: `@eslint/js` (recomendações padrão)
+- TypeScript: `typescript-eslint` com `recommendedTypeChecked`
+- Integração com Prettier: `eslint-plugin-prettier`
+- Pasta `generated/` ignorada (arquivos gerados automaticamente)
+
+**Regras Customizadas:**
+
+- `@typescript-eslint/no-explicit-any`: Desabilitado (permite uso de `any` quando necessário)
+- `@typescript-eslint/no-floating-promises`: Aviso (promises não tratadas)
+- `@typescript-eslint/no-unsafe-argument`: Aviso (argumentos não seguros)
+- `prettier/prettier`: Erro (conflitos com Prettier são erros)
+
+**Comandos:**
+
+```bash
+# Executar lint e corrigir automaticamente
+yarn lint
+
+# Verificar sem corrigir
+yarn eslint "{src,apps,libs,test}/**/*.ts"
+```
+
+**Diretrizes:**
+
+- Código deve passar em `yarn lint` sem erros
+- Código deve estar formatado com Prettier
+- Preferir correção automática quando possível
+- Disabilitar regras do ESLint apenas quando necessário, com comentário justificando
+
+**Desabilitar Regras (quando necessário):**
+
+```typescript
+// Para uma linha específica
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
+// Para um bloco
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+// código
+/* eslint-enable @typescript-eslint/no-unsafe-assignment */
+
+// Para um arquivo inteiro (apenas em casos excepcionais)
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+```
 
 ### NestJS
 
