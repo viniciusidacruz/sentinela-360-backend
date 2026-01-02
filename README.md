@@ -22,11 +22,13 @@ O produto inicia como um MVP com foco em baixo custo, mas preparado para escalar
 ### Instalação
 
 1. Habilite o Corepack (necessário para usar Yarn):
+
 ```bash
 corepack enable
 ```
 
 2. Instale as dependências:
+
 ```bash
 yarn install
 ```
@@ -41,6 +43,10 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 # Aplicação
 PORT=3000
 NODE_ENV=development
+
+# CORS (origens permitidas separadas por vírgula)
+# Em produção, defina as origens específicas do frontend
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
 
 # Banco de Dados
 DATABASE_URL=postgresql://user:password@localhost:5432/sentinela360
@@ -65,6 +71,16 @@ yarn start:prod
 ```
 
 A aplicação estará disponível em `http://localhost:3000`.
+
+### Documentação da API (Swagger)
+
+Em ambiente de desenvolvimento, a documentação interativa da API está disponível em:
+
+```
+http://localhost:3333/api/docs
+```
+
+O Swagger permite explorar todos os endpoints, testar requisições e visualizar os modelos de dados da API.
 
 ## Documentação Arquitetural
 

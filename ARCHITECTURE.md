@@ -918,6 +918,59 @@ Monitoramento contínuo de:
 - Métricas de performance
 - Profiling quando necessário
 
+### Anti-Patterns e Práticas a Evitar
+
+**Números Mágicos:**
+
+- Evitar valores literais numéricos sem significado contextual
+- Extrair para constantes nomeadas descritivamente
+- Usar enums quando representarem estados ou opções
+- Exemplo: `const MAX_RETRY_ATTEMPTS = 3` ao invés de usar `3` diretamente no código
+
+**Código Hardcode:**
+
+- Evitar valores fixos no código que devem ser configuráveis
+- Usar variáveis de ambiente para configurações
+- Centralizar constantes em arquivos dedicados (`constants/`)
+- Exemplo: URLs, timeouts, limites devem vir de configuração
+
+**Strings Literais no Código:**
+
+- Evitar strings mágicas espalhadas pelo código
+- Extrair para constantes ou enums
+- Centralizar mensagens em arquivos de recursos quando aplicável
+- Exemplo: `'production'`, `'development'` devem ser constantes ou enums
+
+**Comentários Desnecessários:**
+
+- Código deve ser auto-explicativo através de nomes significativos
+- Comentários devem explicar o "porquê", não o "o quê"
+- Remover comentários que apenas duplicam o código
+- Comentários só são aceitáveis quando:
+  - Explicam decisões arquiteturais complexas
+  - Alertam sobre limitações conhecidas
+  - Documentam APIs públicas (JSDoc)
+
+**Múltiplas Responsabilidades:**
+
+- Uma função/classe deve ter uma única responsabilidade
+- Extrair lógica complexa para funções/métodos menores
+- Separar configuração de execução
+- Exemplo: `main.ts` não deve conter toda configuração inline
+
+**Acesso Direto a Variáveis de Ambiente:**
+
+- Evitar `process.env.*` espalhado pelo código
+- Criar módulo/configuração centralizado
+- Validar variáveis de ambiente na inicialização
+- Tipar configurações quando possível
+
+**Lógica de Configuração no Bootstrap:**
+
+- Separar configurações em classes/funções dedicadas
+- `main.ts` deve apenas orquestrar a inicialização
+- Cada configuração (CORS, Swagger, Validation) em módulo próprio
+
 ### Documentação
 
 **Código:**
