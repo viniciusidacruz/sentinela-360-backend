@@ -16,4 +16,3 @@ export const SWAGGER_CONSTANTS = {
     TEAM: { name: 'team', description: 'Gestão de equipe' },
   },
 } as const;
-

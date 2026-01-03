@@ -31,21 +31,68 @@ Separação clara entre camadas de responsabilidade:
 
 ### SOLID
 
-Aplicação dos cinco princípios:
-- **Single Responsibility**: Cada classe/entidade tem uma única responsabilidade
-- **Open/Closed**: Extensível sem modificação do código existente
-- **Liskov Substitution**: Implementações substituíveis sem quebrar contratos
-- **Interface Segregation**: Interfaces específicas ao invés de genéricas
-- **Dependency Inversion**: Dependência de abstrações, não implementações
+**REGRA OBRIGATÓRIA**: Os princípios SOLID devem ser seguidos **restritamente** em todo o código. Qualquer violação deve ser justificada e documentada.
+
+Aplicação rigorosa dos cinco princípios:
+
+- **Single Responsibility Principle (SRP)**: 
+  - Cada classe deve ter **apenas uma** responsabilidade
+  - Cada Use Case deve ser uma classe separada com um único método `execute()`
+  - Não é permitido agrupar múltiplas responsabilidades em uma única classe
+  - Exemplo: `RegisterUserUseCase`, `LoginUserUseCase`, `RefreshTokenUseCase` são classes separadas, não métodos de uma única classe
+
+- **Open/Closed Principle (OCP)**: 
+  - Classes devem ser abertas para extensão, fechadas para modificação
+  - Use interfaces e abstrações para permitir extensão sem alterar código existente
+
+- **Liskov Substitution Principle (LSP)**: 
+  - Implementações devem ser substituíveis por suas abstrações sem quebrar o comportamento esperado
+  - Qualquer implementação de uma interface deve poder ser usada no lugar da interface
+
+- **Interface Segregation Principle (ISP)**: 
+  - Interfaces devem ser específicas e focadas
+  - Clientes não devem ser forçados a depender de métodos que não utilizam
+  - Prefira múltiplas interfaces específicas a uma interface genérica
+
+- **Dependency Inversion Principle (DIP)**: 
+  - Módulos de alto nível não devem depender de módulos de baixo nível
+  - Ambos devem depender de abstrações (interfaces/ports)
+  - Injeção de dependência via interfaces, nunca implementações concretas
 
 ### Clean Code
 
-Código escrito com foco em:
-- Legibilidade e clareza
-- Nomes significativos
-- Funções pequenas e focadas
-- Comentários apenas quando necessário (código auto-explicativo)
-- Testabilidade facilitada
+**REGRA OBRIGATÓRIA**: O código deve ser auto-explicativo e seguir os princípios de Clean Code rigorosamente.
+
+Princípios aplicados:
+
+- **Legibilidade e Clareza**: 
+  - Código deve ser legível como prosa
+  - Nomes de variáveis, funções e classes devem expressar claramente sua intenção
+
+- **Nomes Significativos**: 
+  - Evite abreviações e siglas não padronizadas
+  - Nomes devem revelar a intenção do código
+  - Use nomes descritivos mesmo que sejam longos
+
+- **Funções Pequenas e Focadas**: 
+  - Funções devem fazer uma única coisa
+  - Prefira funções pequenas a funções grandes
+  - Nível de abstração consistente dentro da função
+
+- **Sem Comentários no Código**: 
+  - **REGRA OBRIGATÓRIA**: Comentários no código são **proibidos**
+  - O código deve ser auto-explicativo através de:
+    - Nomes significativos
+    - Funções bem nomeadas
+    - Estrutura clara
+  - Se você precisa de um comentário para explicar o código, refatore o código
+  - Exceção: Documentação de API (Swagger/OpenAPI) e documentação de arquitetura (markdown)
+  - Comentários inline, de bloco ou de linha devem ser removidos
+
+- **Testabilidade Facilitada**: 
+  - Código deve ser facilmente testável
+  - Dependências devem ser injetadas
+  - Lógica de negócio isolada de frameworks e bibliotecas
 
 ### Domain-Driven Design (DDD)
 
@@ -112,10 +159,16 @@ Responsabilidades:
 - Gerenciamento de transações
 
 Componentes:
-- Use Cases / Application Services
-- Command Handlers / Query Handlers
+- Use Cases (uma classe por caso de uso, método `execute()`)
 - Application DTOs
 - Mappers (DTO ↔ Entity)
+
+**Regra de Use Cases**:
+- Cada Use Case deve ser uma **classe separada** com um único método `execute()`
+- Não é permitido agrupar múltiplos use cases em uma única classe
+- Cada Use Case implementa o Single Responsibility Principle
+- Exemplo: `RegisterUserUseCase`, `LoginUserUseCase`, `RefreshTokenUseCase` são classes distintas
+- Nomenclatura: `[Ação][Entidade]UseCase` (ex: `RegisterUserUseCase`, `CreateFeedbackUseCase`)
 
 ### Domain Layer
 

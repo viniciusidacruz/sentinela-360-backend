@@ -14,6 +14,15 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(1).optional(),
   JWT_EXPIRES_IN: z.string().default('7d'),
   WEBHOOK_SECRET: z.string().min(1).optional(),
+  JWT_ACCESS_SECRET: z.string().min(1),
+  JWT_REFRESH_SECRET: z.string().min(1),
+  JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+  COOKIE_SECURE: z
+    .string()
+    .default('false')
+    .transform((val) => val === 'true'),
+  COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
 });
 
 const _env = envSchema.safeParse(process.env);
