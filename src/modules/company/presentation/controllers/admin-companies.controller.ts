@@ -42,7 +42,7 @@ export class AdminCompaniesController {
     description: 'Empresa não encontrada para o usuário',
   })
   async getMyCompany(@Req() req: Request) {
-    const userId = (req as any).user?.sub;
+    const userId = req.user?.sub;
 
     const result = await this.getCompanyUseCase.execute({
       userId,

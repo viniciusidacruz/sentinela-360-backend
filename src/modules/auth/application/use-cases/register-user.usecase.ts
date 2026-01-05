@@ -16,6 +16,9 @@ import {
   CompanyCategory,
 } from '@/modules/company/domain/entities/company.entity';
 import { Cnpj } from '@/modules/company/domain/value-objects/cnpj.vo';
+import { PrismaService } from '@/common/database/prisma/prisma.service';
+import type { Prisma } from 'generated/prisma/client';
+import { User } from '../../domain/entities/user.entity';
 
 export interface RegisterUserInput {
   email: string;
@@ -28,13 +31,7 @@ export interface RegisterUserInput {
 }
 
 export interface RegisterUserOutput {
-  user: {
-    id: string;
-    email: string;
-    name: string | null;
-    roles: string[];
-    createdAt: Date;
-  };
+  user: User;
 }
 
 @Injectable()
@@ -48,6 +45,7 @@ export class RegisterUserUseCase {
     private readonly consumerRepository: ConsumerRepositoryPort,
     @Inject('CompanyRepositoryPort')
     private readonly companyRepository: CompanyRepositoryPort,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(
@@ -87,7 +85,11 @@ export class RegisterUserUseCase {
           );
         }
 
-        if (!Object.values(CompanyCategory).includes(input.category as CompanyCategory)) {
+        if (
+          !Object.values(CompanyCategory).includes(
+            input.category as CompanyCategory,
+          )
+        ) {
           await this.auditPort.log({
             type: auditPort.AuditEventType.AUTH_REGISTER,
             ip,
@@ -132,27 +134,39 @@ export class RegisterUserUseCase {
           ? [UserRole.COMPANY_OWNER]
           : [UserRole.CONSUMER];
 
-      const user = await this.userRepository.create({
-        email,
-        passwordHash: password,
-        name: input.name || null,
-        roles,
-        status: UserStatus.ACTIVE,
-      });
+      const user = await this.prisma.$transaction(
+        async (tx: Prisma.TransactionClient): Promise<User> => {
+          const userData = await tx.user.create({
+            data: {
+              email: email.getValue(),
+              passwordHash: password.getHash(),
+              name: input.name || null,
+              roles,
+              status: UserStatus.ACTIVE,
+            },
+          });
 
-      if (input.userType === 'company') {
-        await this.companyRepository.create({
-          userId: user.id,
-          cnpj: validatedCnpj!,
-          name: input.companyName!,
-          category: input.category as CompanyCategory,
-          status: CompanyStatus.ACTIVE,
-        });
-      } else {
-        await this.consumerRepository.create({
-          userId: user.id,
-        });
-      }
+          if (input.userType === 'company') {
+            await tx.company.create({
+              data: {
+                userId: userData.id,
+                cnpj: validatedCnpj!.getValue(),
+                name: input.companyName!,
+                category: input.category as CompanyCategory,
+                status: CompanyStatus.ACTIVE,
+              },
+            });
+          } else {
+            await tx.consumer.create({
+              data: {
+                userId: userData.id,
+              },
+            });
+          }
+
+          return this.mapToDomainUser(userData);
+        },
+      );
 
       await this.auditPort.log({
         type: auditPort.AuditEventType.AUTH_REGISTER,
@@ -162,15 +176,7 @@ export class RegisterUserUseCase {
         success: true,
       });
 
-      return {
-        user: {
-          id: user.id,
-          email: user.email.getValue(),
-          name: user.name,
-          roles: user.roles,
-          createdAt: user.createdAt,
-        },
-      };
+      return { user };
     } catch (error) {
       if (
         error instanceof ConflictException ||
@@ -187,5 +193,27 @@ export class RegisterUserUseCase {
       });
       throw error;
     }
+  }
+
+  private mapToDomainUser(userData: {
+    id: string;
+    email: string;
+    passwordHash: string;
+    name: string | null;
+    roles: string[];
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }): User {
+    return new User(
+      userData.id,
+      Email.create(userData.email),
+      Password.fromHash(userData.passwordHash),
+      userData.name,
+      userData.roles as UserRole[],
+      userData.status as UserStatus,
+      userData.createdAt,
+      userData.updatedAt,
+    );
   }
 }

@@ -20,7 +20,6 @@ import {
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.usecase';
 import { GenerateTokensUseCase } from '../../application/use-cases/generate-tokens.usecase';
 import { CookieService } from '../../infrastructure/services/cookie.service';
-import type { UserRepositoryPort } from '../../application/ports/user.repository.port';
 
 @ApiTags(SWAGGER_CONSTANTS.TAGS.AUTH.name)
 @Controller('auth/register')
@@ -28,8 +27,6 @@ export class RegisterController {
   constructor(
     private readonly registerUserUseCase: RegisterUserUseCase,
     private readonly generateTokensUseCase: GenerateTokensUseCase,
-    @Inject('UserRepositoryPort')
-    private readonly userRepository: UserRepositoryPort,
   ) {}
 
   @Post()
@@ -136,23 +133,20 @@ export class RegisterController {
       userAgent,
     );
 
-    const user = await this.userRepository.findById(result.user.id);
-
-    if (!user) {
-      return res.status(201).json({
-        message: 'User registered successfully',
-        user: result.user,
-      });
-    }
-
-    const tokens = await this.generateTokensUseCase.execute(user);
+    const tokens = await this.generateTokensUseCase.execute(result.user);
 
     CookieService.setAccessTokenCookie(res, tokens.accessToken);
     CookieService.setRefreshTokenCookie(res, tokens.refreshToken);
 
     return res.status(201).json({
       message: 'User registered successfully',
-      user: result.user,
+      user: {
+        id: result.user.id,
+        email: result.user.email.getValue(),
+        name: result.user.name,
+        roles: result.user.roles,
+        createdAt: result.user.createdAt,
+      },
     });
   }
 }

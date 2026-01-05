@@ -105,9 +105,12 @@ export class AdminFeedbacksController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const user = (req as any).user;
-    const userId = user?.sub;
-    const roles = user?.roles || [];
+    const user = req.user;
+    if (!user) {
+      throw new ForbiddenException('User not authenticated');
+    }
+    const userId = user.sub;
+    const roles = user.roles || [];
 
     let consumerId: string | undefined;
     let companyId: string | undefined;
@@ -168,9 +171,12 @@ export class AdminFeedbacksController {
     @Body() createFeedbackInput: CreateFeedbackInput,
     @Req() req: Request,
   ) {
-    const user = (req as any).user;
-    const userId = user?.sub;
-    const roles = user?.roles || [];
+    const user = req.user;
+    if (!user) {
+      throw new ForbiddenException('User not authenticated');
+    }
+    const userId = user.sub;
+    const roles = user.roles || [];
 
     if (!roles.includes(UserRole.CONSUMER)) {
       throw new ForbiddenException('Only consumers can create feedbacks');
@@ -232,9 +238,12 @@ export class AdminFeedbacksController {
     @Body() updateFeedbackInput: UpdateFeedbackInput,
     @Req() req: Request,
   ) {
-    const user = (req as any).user;
-    const userId = user?.sub;
-    const roles = user?.roles || [];
+    const user = req.user;
+    if (!user) {
+      throw new ForbiddenException('User not authenticated');
+    }
+    const userId = user.sub;
+    const roles = user.roles || [];
 
     if (!roles.includes(UserRole.CONSUMER)) {
       throw new ForbiddenException('Only consumers can update feedbacks');
@@ -286,9 +295,12 @@ export class AdminFeedbacksController {
     description: 'Feedback não encontrado',
   })
   async delete(@Param('id') id: string, @Req() req: Request) {
-    const user = (req as any).user;
-    const userId = user?.sub;
-    const roles = user?.roles || [];
+    const user = req.user;
+    if (!user) {
+      throw new ForbiddenException('User not authenticated');
+    }
+    const userId = user.sub;
+    const roles = user.roles || [];
 
     if (!roles.includes(UserRole.CONSUMER)) {
       throw new ForbiddenException('Only consumers can delete feedbacks');

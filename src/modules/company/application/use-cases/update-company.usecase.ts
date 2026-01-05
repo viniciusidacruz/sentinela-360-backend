@@ -14,7 +14,7 @@ export interface UpdateCompanyInput {
   id: string;
   userId: string;
   name?: string;
-  status?: CompanyStatus;
+  category?: CompanyCategory;
 }
 
 export interface UpdateCompanyOutput {
@@ -50,15 +50,15 @@ export class UpdateCompanyUseCase {
 
     const updateData: {
       name?: string;
-      status?: CompanyStatus;
+      category?: CompanyCategory;
     } = {};
 
     if (input.name !== undefined) {
       updateData.name = input.name;
     }
 
-    if (input.status !== undefined) {
-      updateData.status = input.status;
+    if (input.category !== undefined) {
+      updateData.category = input.category;
     }
 
     const company = await this.companyRepository.update(input.id, updateData);

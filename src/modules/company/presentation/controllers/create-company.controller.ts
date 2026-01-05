@@ -5,7 +5,7 @@ import {
   Req,
   UsePipes,
   UseGuards,
-  Inject,
+  UnauthorizedException,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -49,7 +49,10 @@ export class CreateCompanyController {
     @Body() createCompanyInput: CreateCompanyInput,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user?.sub;
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
 
     const result = await this.createCompanyUseCase.execute({
       userId,

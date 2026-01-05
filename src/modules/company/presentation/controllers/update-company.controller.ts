@@ -6,6 +6,7 @@ import {
   Req,
   UsePipes,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import {
@@ -63,13 +64,16 @@ export class UpdateCompanyController {
     @Body() updateCompanyInput: UpdateCompanyInput,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user?.sub;
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
 
     const result = await this.updateCompanyUseCase.execute({
       id,
       userId,
       name: updateCompanyInput.name,
-      status: updateCompanyInput.status as any,
+      category: updateCompanyInput.category,
     });
 
     return {
