@@ -324,6 +324,11 @@ Regras de Negócio:
 - CNPJ único por empresa
 - Validação de CNPJ
 - Empresa inativa não pode receber feedbacks
+- Empresa é cadastrada automaticamente durante registro com `userType: "company"`
+- Endpoints públicos (`/companies/*`, `/feedbacks/*`) não requerem autenticação e mostram contexto geral
+- Endpoints admin (`/admin/*`) requerem autenticação e mostram apenas dados do usuário logado
+- Empresa logada vê apenas dados da sua própria empresa em `/admin/*`
+- Cliente logado vê apenas seus próprios feedbacks em `/admin/*`
 
 ### Consumer (Cliente)
 
@@ -351,11 +356,14 @@ Entidades Principais:
 - FeedbackRating
 
 Regras de Negócio:
-- Consumidor pode criar apenas um feedback por empresa (ou múltiplos conforme regra de negócio)
+- Consumidor pode criar feedback apenas sobre empresas cadastradas e ativas
 - Feedback possui rating (1-5 estrelas)
-- Empresa pode responder ao feedback
+- Empresa pode responder ao feedback (futuro)
 - Feedback pode ser moderado/ocultado
-- Feedback contribui para cálculo de reputação
+- Feedback contribui para cálculo de reputação (futuro)
+- Consumidor só pode criar, atualizar e deletar seus próprios feedbacks
+- Endpoints públicos listam todos os feedbacks ativos
+- Endpoints admin mostram apenas feedbacks do usuário logado
 
 ### Reputation (Reputação)
 
@@ -474,9 +482,11 @@ Regras de Negócio:
 
 ### Company
 
-- CreateCompany: Criação de nova empresa
-- UpdateCompany: Atualização de dados da empresa
-- GetCompanyDetails: Obtenção de detalhes da empresa
+- CreateCompany: Criação de nova empresa (automática durante registro)
+- ListCompanies: Listagem pública de empresas (com filtros)
+- GetCompanyDetails: Obtenção de detalhes da empresa (público)
+- GetMyCompany: Obtenção da empresa do usuário autenticado (em `/admin/companies`)
+- UpdateCompany: Atualização de dados da empresa (apenas própria empresa)
 - ActivateCompany: Ativação de empresa
 - DeactivateCompany: Desativação de empresa
 

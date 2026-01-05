@@ -1,7 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from '@/common/database/prisma/prisma.module';
+import { FeedbackModule } from '@/modules/feedback/feedback.module';
+import { CompanyModule } from '@/modules/company/company.module';
 import { RegisterController } from './presentation/controllers/register.controller';
 import { LoginController } from './presentation/controllers/login.controller';
 import { RefreshController } from './presentation/controllers/refresh.controller';
@@ -15,6 +17,8 @@ import { UserPrismaRepository } from './infrastructure/repositories/user.prisma.
 import { JwtTokenService } from './infrastructure/services/jwt.token.service';
 import { AuditNoopService } from './infrastructure/services/audit.noop.service';
 import { PasswordHashService } from './infrastructure/services/password-hash.service';
+import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
+import { AdminGuard } from './presentation/guards/admin.guard';
 
 @Module({
   imports: [
@@ -26,6 +30,8 @@ import { PasswordHashService } from './infrastructure/services/password-hash.ser
         limit: 5,
       },
     ]),
+    forwardRef(() => FeedbackModule),
+    forwardRef(() => CompanyModule),
   ],
   controllers: [
     RegisterController,
@@ -55,6 +61,16 @@ import { PasswordHashService } from './infrastructure/services/password-hash.ser
     RefreshTokenUseCase,
     LogoutUserUseCase,
     PasswordHashService,
+    JwtAuthGuard,
+    AdminGuard,
+  ],
+  exports: [
+    JwtAuthGuard,
+    AdminGuard,
+    JwtTokenService,
+    'TokenServicePort',
+    UserPrismaRepository,
+    'UserRepositoryPort',
   ],
 })
 export class AuthModule {}

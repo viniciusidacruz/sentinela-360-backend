@@ -69,6 +69,40 @@ export class RegisterCompanyDto {
     example: 'Empresa XYZ Ltda',
   })
   companyName: string;
+
+  @ApiProperty({
+    description: 'Categoria da empresa',
+    example: 'FOOD_AND_BEVERAGE',
+    enum: [
+      'FOOD_AND_BEVERAGE',
+      'RETAIL',
+      'SERVICES',
+      'HEALTH',
+      'EDUCATION',
+      'TECHNOLOGY',
+      'CONSTRUCTION',
+      'TRANSPORT',
+      'TOURISM_AND_HOSPITALITY',
+      'BEAUTY_AND_AESTHETICS',
+      'AUTOMOTIVE',
+      'REAL_ESTATE',
+      'FINANCIAL',
+      'ENTERTAINMENT',
+      'FASHION_AND_APPAREL',
+      'SPORTS_AND_FITNESS',
+      'PET_SERVICES',
+      'LEGAL',
+      'CONSULTING',
+      'MANUFACTURING',
+      'AGRICULTURE',
+      'ENERGY',
+      'TELECOMMUNICATIONS',
+      'MEDIA_AND_ADVERTISING',
+      'NON_PROFIT',
+      'OTHER',
+    ],
+  })
+  category: string;
 }
 
 export type RegisterUserDto = RegisterConsumerDto | RegisterCompanyDto;

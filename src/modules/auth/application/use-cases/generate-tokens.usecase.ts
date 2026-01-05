@@ -27,12 +27,8 @@ export class GenerateTokensUseCase {
     const refreshToken = this.tokenService.generateRefreshToken(payload);
 
     const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
-    await this.userRepository.updateRefreshTokenHash(
-      user.id,
-      refreshTokenHash,
-    );
+    await this.userRepository.updateRefreshTokenHash(user.id, refreshTokenHash);
 
     return { accessToken, refreshToken };
   }
 }
-

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import type { UserRepositoryPort } from '../ports/user.repository.port';
 import type { TokenServicePort } from '../ports/token.service.port';
 import * as auditPort from '../ports/audit.port';
@@ -58,11 +54,9 @@ export class RefreshTokenUseCase {
         ip,
         userAgent,
         success: false,
-        error:
-          error instanceof Error ? error.message : 'Invalid refresh token',
+        error: error instanceof Error ? error.message : 'Invalid refresh token',
       });
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }
-

@@ -1,19 +1,30 @@
 import {
   Injectable,
   ConflictException,
+  BadRequestException,
   Inject,
 } from '@nestjs/common';
 import type { UserRepositoryPort } from '../ports/user.repository.port';
+import type { ConsumerRepositoryPort } from '@/modules/feedback/application/ports/consumer.repository.port';
+import type { CompanyRepositoryPort } from '@/modules/company/application/ports/company.repository.port';
 import * as auditPort from '../ports/audit.port';
 import { Email } from '../../domain/value-objects/email.vo';
 import { Password } from '../../domain/value-objects/password.vo';
 import { UserRole, UserStatus } from '../../domain/entities/user.entity';
+import {
+  CompanyStatus,
+  CompanyCategory,
+} from '@/modules/company/domain/entities/company.entity';
+import { Cnpj } from '@/modules/company/domain/value-objects/cnpj.vo';
 
 export interface RegisterUserInput {
   email: string;
   password: string;
   name?: string;
   userType?: 'consumer' | 'company';
+  cnpj?: string;
+  companyName?: string;
+  category?: string;
 }
 
 export interface RegisterUserOutput {
@@ -33,6 +44,10 @@ export class RegisterUserUseCase {
     private readonly userRepository: UserRepositoryPort,
     @Inject('AuditPort')
     private readonly auditPort: auditPort.AuditPort,
+    @Inject('ConsumerRepositoryPort')
+    private readonly consumerRepository: ConsumerRepositoryPort,
+    @Inject('CompanyRepositoryPort')
+    private readonly companyRepository: CompanyRepositoryPort,
   ) {}
 
   async execute(
@@ -55,6 +70,62 @@ export class RegisterUserUseCase {
         throw new ConflictException('Email already registered');
       }
 
+      let validatedCnpj: Cnpj | null = null;
+
+      if (input.userType === 'company') {
+        if (!input.cnpj || !input.companyName || !input.category) {
+          await this.auditPort.log({
+            type: auditPort.AuditEventType.AUTH_REGISTER,
+            ip,
+            userAgent,
+            success: false,
+            error:
+              'CNPJ, company name, and category are required for company registration',
+          });
+          throw new BadRequestException(
+            'CNPJ, company name, and category are required for company registration',
+          );
+        }
+
+        if (!Object.values(CompanyCategory).includes(input.category as CompanyCategory)) {
+          await this.auditPort.log({
+            type: auditPort.AuditEventType.AUTH_REGISTER,
+            ip,
+            userAgent,
+            success: false,
+            error: 'Invalid company category',
+          });
+          throw new BadRequestException('Invalid company category');
+        }
+
+        try {
+          validatedCnpj = Cnpj.create(input.cnpj);
+        } catch (error) {
+          await this.auditPort.log({
+            type: auditPort.AuditEventType.AUTH_REGISTER,
+            ip,
+            userAgent,
+            success: false,
+            error: error instanceof Error ? error.message : 'Invalid CNPJ',
+          });
+          throw new BadRequestException('Invalid CNPJ format');
+        }
+
+        const existingCompany = await this.companyRepository.findByCnpj(
+          validatedCnpj.getValue(),
+        );
+        if (existingCompany) {
+          await this.auditPort.log({
+            type: auditPort.AuditEventType.AUTH_REGISTER,
+            ip,
+            userAgent,
+            success: false,
+            error: 'CNPJ already registered',
+          });
+          throw new ConflictException('CNPJ already registered');
+        }
+      }
+
       const password = await Password.create(input.password);
       const roles: UserRole[] =
         input.userType === 'company'
@@ -68,6 +139,20 @@ export class RegisterUserUseCase {
         roles,
         status: UserStatus.ACTIVE,
       });
+
+      if (input.userType === 'company') {
+        await this.companyRepository.create({
+          userId: user.id,
+          cnpj: validatedCnpj!,
+          name: input.companyName!,
+          category: input.category as CompanyCategory,
+          status: CompanyStatus.ACTIVE,
+        });
+      } else {
+        await this.consumerRepository.create({
+          userId: user.id,
+        });
+      }
 
       await this.auditPort.log({
         type: auditPort.AuditEventType.AUTH_REGISTER,
@@ -87,7 +172,10 @@ export class RegisterUserUseCase {
         },
       };
     } catch (error) {
-      if (error instanceof ConflictException) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       await this.auditPort.log({
@@ -101,4 +189,3 @@ export class RegisterUserUseCase {
     }
   }
 }
-

@@ -119,6 +119,18 @@ export class RegisterController {
         password: registerUserInput.password,
         name: registerUserInput.name,
         userType: registerUserInput.userType || 'consumer',
+        cnpj:
+          registerUserInput.userType === 'company'
+            ? registerUserInput.cnpj
+            : undefined,
+        companyName:
+          registerUserInput.userType === 'company'
+            ? registerUserInput.companyName
+            : undefined,
+        category:
+          registerUserInput.userType === 'company'
+            ? registerUserInput.category
+            : undefined,
       },
       ip,
       userAgent,

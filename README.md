@@ -82,6 +82,38 @@ http://localhost:3333/api/docs
 
 O Swagger permite explorar todos os endpoints, testar requisições e visualizar os modelos de dados da API.
 
+## Regras de Negócio
+
+### Estrutura de Endpoints
+
+A API segue padrões REST e divide endpoints em duas áreas:
+
+#### Endpoints Públicos (sem autenticação)
+
+- `GET /companies/list` - Lista todas as empresas (com filtro por status)
+- `GET /companies/:id` - Detalhes de uma empresa específica
+- `GET /feedbacks/list` - Lista todos os feedbacks (com filtro por companyId)
+- `GET /feedbacks/:id` - Detalhes de um feedback específico
+
+#### Endpoints Admin (com autenticação)
+
+- `GET /admin/companies` - Empresa do usuário autenticado
+- `GET /admin/feedbacks` - Feedbacks do usuário autenticado
+- `POST /admin/feedbacks` - Criar feedback (apenas consumidores)
+- `PUT /admin/feedbacks/:id` - Atualizar feedback (apenas consumidores, só os próprios)
+- `DELETE /admin/feedbacks/:id` - Deletar feedback (apenas consumidores, só os próprios)
+
+### Regras Importantes
+
+1. **Cadastro de Empresa**: Empresa é cadastrada automaticamente durante o registro com `userType: "company"`
+2. **Criação de Feedback**: Cliente pode criar feedback apenas sobre empresas cadastradas e ativas
+3. **Contexto Público**: Endpoints públicos mostram dados em contexto geral (todas as empresas/feedbacks)
+4. **Contexto Admin**: Endpoints admin mostram apenas dados do usuário logado:
+   - Empresa logada vê apenas dados da sua própria empresa
+   - Cliente logado vê apenas seus próprios feedbacks
+
+Para mais detalhes sobre regras de negócio, consulte [BUSINESS_RULES.md](./BUSINESS_RULES.md).
+
 ## Documentação Arquitetural
 
 Para entender a arquitetura, padrões, decisões técnicas e estrutura do backend, consulte o arquivo [ARCHITECTURE.md](./ARCHITECTURE.md).

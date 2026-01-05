@@ -31,5 +31,95 @@ model User {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
+  consumer Consumer?
+  company  Company?
+
   @@map("users")
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+enum CompanyCategory {
+  FOOD_AND_BEVERAGE
+  RETAIL
+  SERVICES
+  HEALTH
+  EDUCATION
+  TECHNOLOGY
+  CONSTRUCTION
+  TRANSPORT
+  TOURISM_AND_HOSPITALITY
+  BEAUTY_AND_AESTHETICS
+  AUTOMOTIVE
+  REAL_ESTATE
+  FINANCIAL
+  ENTERTAINMENT
+  FASHION_AND_APPAREL
+  SPORTS_AND_FITNESS
+  PET_SERVICES
+  LEGAL
+  CONSULTING
+  MANUFACTURING
+  AGRICULTURE
+  ENERGY
+  TELECOMMUNICATIONS
+  MEDIA_AND_ADVERTISING
+  NON_PROFIT
+  OTHER
+}
+
+model Company {
+  id        String          @id @default(uuid())
+  userId    String          @unique
+  cnpj      String          @unique
+  name      String
+  category  CompanyCategory
+  status    CompanyStatus   @default(ACTIVE)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedbacks Feedback[]
+
+  @@map("companies")
+}
+
+model Consumer {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedbacks Feedback[]
+
+  @@map("consumers")
+}
+
+enum FeedbackStatus {
+  ACTIVE
+  MODERATED
+  DELETED
+}
+
+model Feedback {
+  id          String         @id @default(uuid())
+  consumerId  String
+  companyId   String
+  rating      Int
+  comment     String?
+  status      FeedbackStatus @default(ACTIVE)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  consumer Consumer @relation(fields: [consumerId], references: [id], onDelete: Cascade)
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([consumerId])
+  @@map("feedbacks")
 }
