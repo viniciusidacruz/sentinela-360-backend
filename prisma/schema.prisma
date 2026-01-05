@@ -83,8 +83,9 @@ model Company {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  feedbacks Feedback[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedbacks         Feedback[]
+  reputationMetrics ReputationMetrics?
 
   @@map("companies")
 }
@@ -180,4 +181,42 @@ model RolePermission {
   @@index([roleId])
   @@index([permissionId])
   @@map("role_permissions")
+}
+
+model ReputationMetrics {
+  id             String   @id @default(uuid())
+  companyId      String   @unique
+  averageRating  Float
+  totalFeedbacks Int
+  rating1        Int      @default(0)
+  rating2        Int      @default(0)
+  rating3        Int      @default(0)
+  rating4        Int      @default(0)
+  rating5        Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  company Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  history ReputationHistory[]
+
+  @@map("reputation_metrics")
+}
+
+model ReputationHistory {
+  id                  String   @id @default(uuid())
+  reputationMetricsId String
+  averageRating       Float
+  totalFeedbacks      Int
+  rating1             Int      @default(0)
+  rating2             Int      @default(0)
+  rating3             Int      @default(0)
+  rating4             Int      @default(0)
+  rating5             Int      @default(0)
+  recordedAt          DateTime @default(now())
+
+  reputationMetrics ReputationMetrics @relation(fields: [reputationMetricsId], references: [id], onDelete: Cascade)
+
+  @@index([reputationMetricsId])
+  @@index([recordedAt])
+  @@map("reputation_history")
 }

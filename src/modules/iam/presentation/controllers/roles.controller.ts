@@ -6,7 +6,6 @@ import {
   Param,
   UsePipes,
   UseGuards,
-  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBody,

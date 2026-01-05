@@ -9,7 +9,7 @@ export interface CheckPermissionInput {
 }
 
 export interface CheckPermissionOutput {
-  allowed: boolean;
+  hasPermission: boolean;
 }
 
 @Injectable()
@@ -20,13 +20,13 @@ export class CheckPermissionUseCase {
   ) {}
 
   async execute(input: CheckPermissionInput): Promise<CheckPermissionOutput> {
-    const allowed = await this.permissionChecker.check({
+    const hasPermission = await this.permissionChecker.check({
       userId: input.userId,
       resource: input.resource,
       action: input.action,
       companyId: input.companyId,
     });
 
-    return { allowed };
+    return { hasPermission };
   }
 }

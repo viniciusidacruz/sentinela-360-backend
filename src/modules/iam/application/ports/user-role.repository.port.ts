@@ -16,3 +16,4 @@ export interface UserRoleRepositoryPort {
   delete(userId: string, roleId: string): Promise<void>;
   deleteByUserId(userId: string): Promise<void>;
 }
+
